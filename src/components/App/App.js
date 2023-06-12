@@ -1,23 +1,16 @@
 import css from './App.module.css';
-import { React, useState } from 'react';
 import ContactsForm from '../ContactsForm/ContactsForm';
 import ContactsList from '../ContactsList/ContactsList';
 import ContactsFilter from '../ContactsFilter/ContactsFilter';
-import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { createContact, deleteContact } from '../../redux/contactsSlice';
+import { setFilter } from '../../redux/filtersSlice';
+import { getContacts, getFilters } from '../../redux/selectors';
 
 const App = () => {
-  const [contacts, setContacts] = useState(
-    JSON.parse(localStorage.getItem('contacts'))
-  );
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const onSetFilter = query => {
-    setFilter(query);
-  };
+  const { contacts } = useSelector(getContacts);
+  const { filter } = useSelector(getFilters);
+  const dispatch = useDispatch();
 
   const onHandleAddContact = contact => {
     if (contacts.some(i => i.name === contact.name)) {
@@ -25,11 +18,15 @@ const App = () => {
       return;
     }
 
-    setContacts([...contacts, contact]);
+    dispatch(createContact(contact));
   };
 
   const onHandleDelContact = contactId => {
-    setContacts(contacts.filter(el => el.id !== contactId));
+    dispatch(deleteContact(contactId));
+  };
+
+  const onSetFilter = query => {
+    dispatch(setFilter(query));
   };
 
   return (
